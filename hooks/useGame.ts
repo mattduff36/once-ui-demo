@@ -69,7 +69,9 @@ export const useGame = (): GameController => {
   }, []);
 
   const playLineClear = useCallback((lines: number) => {
-    if (lines > 0) {
+    if (lines === 4) {
+      soundRef.current?.play("tetris");
+    } else if (lines > 0) {
       soundRef.current?.play("lineClear");
     }
   }, []);
@@ -78,21 +80,45 @@ export const useGame = (): GameController => {
     soundRef.current?.play("hardDrop");
   }, []);
 
+  const playLock = useCallback(() => {
+    soundRef.current?.play("lock");
+  }, []);
+
   const playGameOver = useCallback(() => {
     soundRef.current?.play("gameOver");
   }, []);
 
+  const playPause = useCallback(() => {
+    soundRef.current?.play("pause");
+  }, []);
+
+  const playResume = useCallback(() => {
+    soundRef.current?.play("resume");
+  }, []);
+
+  const playStart = useCallback(() => {
+    soundRef.current?.play("start");
+  }, []);
+
   const handleLockResultSounds = useCallback(
-    (lockResult: { linesCleared: number; gameOver: boolean } | null) => {
+    (
+      lockResult: { linesCleared: number; gameOver: boolean } | null,
+      source: "gravity" | "hard"
+    ) => {
       if (!lockResult) {
         return;
+      }
+      // "hard" drops have their own dedicated impact sound played separately,
+      // so we only fire the soft lock thump on gravity locks.
+      if (source === "gravity") {
+        playLock();
       }
       playLineClear(lockResult.linesCleared);
       if (lockResult.gameOver) {
         playGameOver();
       }
     },
-    [playGameOver, playLineClear]
+    [playGameOver, playLineClear, playLock]
   );
 
   const playHold = useCallback(() => {
@@ -128,7 +154,7 @@ export const useGame = (): GameController => {
         const next = engineRef.current.getSnapshot();
         setSnapshot(next);
         writeHighScore(next.highScore);
-        handleLockResultSounds(result.lockResult);
+        handleLockResultSounds(result.lockResult, "gravity");
       }
       frameRef.current = window.requestAnimationFrame(loop);
     };
@@ -199,7 +225,7 @@ export const useGame = (): GameController => {
     const result = engineRef.current.hardDrop();
     if (result) {
       playHardDrop();
-      handleLockResultSounds(result);
+      handleLockResultSounds(result, "hard");
       syncSnapshot();
     }
   }, [handleLockResultSounds, playHardDrop, syncSnapshot, withSoundUnlock]);
@@ -217,15 +243,32 @@ export const useGame = (): GameController => {
   }, [playHold, syncSnapshot, withSoundUnlock]);
 
   const togglePause = useCallback(() => {
-    engineRef.current?.togglePause();
+    void withSoundUnlock();
+    if (!engineRef.current) {
+      return;
+    }
+    const before = engineRef.current.getSnapshot();
+    // Engine silently ignores pause requests during game-over, so don't cue a
+    // pause/resume sound in that state.
+    if (before.gameOver) {
+      return;
+    }
+    engineRef.current.togglePause();
+    const after = engineRef.current.getSnapshot();
+    if (after.paused && !before.paused) {
+      playPause();
+    } else if (!after.paused && before.paused) {
+      playResume();
+    }
     syncSnapshot();
-  }, [syncSnapshot]);
+  }, [playPause, playResume, syncSnapshot, withSoundUnlock]);
 
   const restart = useCallback(() => {
     void withSoundUnlock();
     engineRef.current?.restart();
+    playStart();
     syncSnapshot();
-  }, [syncSnapshot, withSoundUnlock]);
+  }, [playStart, syncSnapshot, withSoundUnlock]);
 
   const toggleSound = useCallback(() => {
     const current = engineRef.current?.getSnapshot().soundEnabled ?? false;
