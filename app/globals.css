@@ -55,57 +55,104 @@ a {
   overflow: hidden;
 }
 
-/* ---------- Info strip: compact horizontal row of Hold + Stats + Next ---------- */
+/* ---------- Info strip: compact scores bar across the top ---------- */
 
 .info-strip {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 6px;
-  align-items: stretch;
+  display: block;
   flex-shrink: 0;
+  width: 100%;
   min-width: 0;
 }
 
-.hold-slot {
-  display: flex;
-  width: clamp(46px, 13.5vw, 64px);
-  min-width: 0;
-}
+/* ---------- Play row: left rail (Hold + Next) | centred board | mirror column ---------- */
 
-.hold-slot > .piece-preview {
+.play-row {
+  --rail-w: clamp(48px, 13vw, 96px);
+  --rail-gap: clamp(4px, 1.4vw, 10px);
   flex: 1 1 auto;
+  min-height: 0;
   min-width: 0;
-}
-
-.next-inline {
-  display: flex;
-  gap: 4px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--rail-w);
+  gap: var(--rail-gap);
   align-items: stretch;
-  min-width: 0;
+  justify-items: stretch;
 }
 
-.next-inline > .piece-preview.mini {
-  width: clamp(36px, 10.5vw, 54px);
+/* The third column is intentionally empty; it reserves mirror width so the
+   board-wrap in column 2 is centred relative to the overall app-shell. */
+
+.side-rail {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.6vh, 5px);
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.rail-label {
+  margin: 0;
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-subtle);
+  text-align: center;
+  line-height: 1;
   flex: 0 0 auto;
 }
 
-/* On narrow viewports show 3 next pieces; reveal more as width permits. */
-.next-inline > .piece-preview.mini:nth-child(n + 4) {
-  display: none;
+.rail-hold {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
-@media (min-width: 440px) {
-  .next-inline > .piece-preview.mini:nth-child(n + 4) {
-    display: flex;
-  }
-  .next-inline > .piece-preview.mini:nth-child(n + 5) {
+.rail-hold > .piece-preview.mini {
+  width: 100%;
+}
+
+.rail-next-list {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.6vh, 5px);
+  align-items: stretch;
+}
+
+.rail-next-list > .piece-preview.mini {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  padding: clamp(2px, 0.6vw, 4px);
+}
+
+/* In the vertical rail the preview-grid must obey BOTH the rail width and
+   the flex height, so we let it size to 100% of the smaller dimension while
+   keeping the piece square and centred. */
+.side-rail .piece-preview.mini .preview-grid {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+}
+
+/* On ultra-short viewports thin out the queue so the remaining pieces stay
+   big enough to read (the engine keeps generating all 5 regardless). */
+@media (max-height: 560px) {
+  .rail-next-list > .piece-preview.mini:nth-child(n + 5) {
     display: none;
   }
 }
-
-@media (min-width: 560px) {
-  .next-inline > .piece-preview.mini:nth-child(n + 5) {
-    display: flex;
+@media (max-height: 460px) {
+  .rail-next-list > .piece-preview.mini:nth-child(n + 4) {
+    display: none;
   }
 }
 
@@ -674,17 +721,12 @@ a {
       max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     gap: 10px;
   }
-  .info-strip {
-    gap: 12px;
+  .play-row {
+    --rail-w: clamp(72px, 11vw, 120px);
+    --rail-gap: clamp(8px, 1.6vw, 14px);
   }
-  .hold-slot {
-    width: clamp(68px, 10vw, 96px);
-  }
-  .next-inline {
-    gap: 6px;
-  }
-  .next-inline > .piece-preview.mini {
-    width: clamp(56px, 8vw, 80px);
+  .rail-label {
+    font-size: 0.64rem;
   }
   .panel {
     padding: 10px;
@@ -741,22 +783,17 @@ a {
     align-items: center;
   }
   .info-strip,
+  .play-row,
   .gb-controls {
     width: 100%;
-    max-width: 860px;
+    max-width: 920px;
   }
-  .board-wrap {
-    width: 100%;
-    max-width: 860px;
+  .play-row {
+    --rail-w: 132px;
+    --rail-gap: 18px;
   }
-  .info-strip {
-    gap: 16px;
-  }
-  .hold-slot {
-    width: 108px;
-  }
-  .next-inline > .piece-preview.mini {
-    width: 84px;
+  .rail-label {
+    font-size: 0.7rem;
   }
   .panel {
     padding: 12px;

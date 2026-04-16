@@ -25,14 +25,6 @@ export function GameScreen() {
   return (
     <main className="app-shell">
       <div className="info-strip" aria-label="Game status">
-        <div className="hold-slot">
-          <PiecePreview
-            piece={snapshot.holdPiece}
-            label="Hold"
-            dimmed={!snapshot.canHold}
-            variant="mini"
-          />
-        </div>
         <HudPanel
           score={snapshot.score}
           highScore={snapshot.highScore}
@@ -40,20 +32,34 @@ export function GameScreen() {
           lines={snapshot.lines}
           variant="inline"
         />
-        <div className="next-inline" aria-label="Next pieces">
-          {next.map((piece, index) => (
-            <PiecePreview key={`${piece}-${index}`} piece={piece} variant="mini" />
-          ))}
-        </div>
       </div>
 
-      <div className="board-wrap">
-        <Board
-          snapshot={snapshot}
-          onRestart={input.restart}
-          onResume={input.pauseToggle}
-          onToggleSound={input.toggleSound}
-        />
+      <div className="play-row">
+        <aside className="side-rail" aria-label="Hold and next pieces">
+          <p className="rail-label">Hold</p>
+          <div className="rail-hold">
+            <PiecePreview
+              piece={snapshot.holdPiece}
+              dimmed={!snapshot.canHold}
+              variant="mini"
+            />
+          </div>
+          <p className="rail-label">Next</p>
+          <div className="rail-next-list">
+            {next.map((piece, index) => (
+              <PiecePreview key={`${piece}-${index}`} piece={piece} variant="mini" />
+            ))}
+          </div>
+        </aside>
+
+        <div className="board-wrap">
+          <Board
+            snapshot={snapshot}
+            onRestart={input.restart}
+            onResume={input.pauseToggle}
+            onToggleSound={input.toggleSound}
+          />
+        </div>
       </div>
 
       <TouchControls
