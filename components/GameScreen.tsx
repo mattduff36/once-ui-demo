@@ -9,6 +9,7 @@ import { useGame } from "@/hooks/useGame";
 
 export function GameScreen() {
   const { snapshot, input } = useGame();
+  // Render up to 5 next pieces; CSS hides extras on narrower viewports.
   const next = snapshot.nextQueue.slice(0, 5);
 
   useEffect(() => {
@@ -22,48 +23,63 @@ export function GameScreen() {
   }, []);
 
   return (
-    <main className="app-root">
-      <header className="title-row">
-        <div>
-          <h1 className="brand-title">Block Stack</h1>
-          <p className="subtitle">Mobile-first falling-block puzzle</p>
+    <main className="app-shell">
+      <header className="top-bar">
+        <h1 className="brand-title">Block Stack</h1>
+        <div className="top-actions">
+          <button
+            type="button"
+            className="action-btn"
+            onClick={input.toggleSound}
+            aria-label={snapshot.soundEnabled ? "Mute sound" : "Enable sound"}
+          >
+            {snapshot.soundEnabled ? "Sound" : "Muted"}
+          </button>
+          <button type="button" className="action-btn" onClick={input.pauseToggle}>
+            {snapshot.paused ? "Resume" : "Pause"}
+          </button>
+          <button type="button" className="action-btn danger" onClick={input.restart}>
+            {snapshot.gameOver ? "Play Again" : "Restart"}
+          </button>
         </div>
       </header>
-      <section className="game-layout">
-        <div className="left-column">
-          <PiecePreview piece={snapshot.holdPiece} label="Hold" dimmed={!snapshot.canHold} />
-          <HudPanel
-            score={snapshot.score}
-            highScore={snapshot.highScore}
-            level={snapshot.level}
-            lines={snapshot.lines}
-            combo={snapshot.combo}
-            backToBack={snapshot.backToBack}
-            clearText={snapshot.lastClearText}
-            paused={snapshot.paused}
-            gameOver={snapshot.gameOver}
-            soundEnabled={snapshot.soundEnabled}
-            onToggleSound={input.toggleSound}
-            onPause={input.pauseToggle}
-            onRestart={input.restart}
+
+      <div className="info-strip" aria-label="Game status">
+        <div className="hold-slot">
+          <PiecePreview
+            piece={snapshot.holdPiece}
+            label="Hold"
+            dimmed={!snapshot.canHold}
+            variant="mini"
           />
         </div>
-
-        <div className="board-column">
-          <Board snapshot={snapshot} />
+        <HudPanel
+          score={snapshot.score}
+          highScore={snapshot.highScore}
+          level={snapshot.level}
+          lines={snapshot.lines}
+          variant="inline"
+        />
+        <div className="next-inline" aria-label="Next pieces">
+          {next.map((piece, index) => (
+            <PiecePreview key={`${piece}-${index}`} piece={piece} variant="mini" />
+          ))}
         </div>
+      </div>
 
-        <div className="right-column">
-          <div className="panel queue-panel">
-            <div className="panel-title">Next</div>
-            <div className="queue-list">
-              {next.map((piece, index) => (
-                <PiecePreview key={`${piece}-${index}`} piece={piece} label={`#${index + 1}`} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <div className="board-wrap">
+        <Board
+          snapshot={snapshot}
+          onRestart={input.restart}
+          onResume={input.pauseToggle}
+        />
+      </div>
+
+      <div className="status-line" aria-live="polite">
+        {snapshot.lastClearText ? <span className="status-pill">{snapshot.lastClearText}</span> : null}
+        {snapshot.combo > 0 ? <span className="status-pill">Combo x{snapshot.combo + 1}</span> : null}
+        {snapshot.backToBack ? <span className="status-pill">Back-to-Back</span> : null}
+      </div>
 
       <TouchControls
         onLeftDown={input.leftDown}

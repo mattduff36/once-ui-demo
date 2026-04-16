@@ -6,6 +6,8 @@ import type { CellValue, GameSnapshot, PieceType } from "@/lib/game/types";
 
 interface BoardProps {
   snapshot: GameSnapshot;
+  onRestart?: () => void;
+  onResume?: () => void;
 }
 
 const GHOST_ALPHA = "55";
@@ -36,7 +38,7 @@ const createRenderGrid = (snapshot: GameSnapshot): CellValue[][] => {
   return board;
 };
 
-export function Board({ snapshot }: BoardProps) {
+export function Board({ snapshot, onRestart, onResume }: BoardProps) {
   const renderGrid = createRenderGrid(snapshot);
 
   return (
@@ -64,7 +66,19 @@ export function Board({ snapshot }: BoardProps) {
       {(snapshot.paused || snapshot.gameOver) && (
         <div className="board-overlay">
           <p className="overlay-title">{snapshot.gameOver ? "Game Over" : "Paused"}</p>
-          <p className="overlay-subtitle">{snapshot.gameOver ? "Tap restart to play again." : "Press pause to resume."}</p>
+          <p className="overlay-subtitle">
+            {snapshot.gameOver ? "Tap play again to retry." : "Tap resume to continue."}
+          </p>
+          {snapshot.gameOver && onRestart ? (
+            <button type="button" className="overlay-btn" onClick={onRestart}>
+              Play Again
+            </button>
+          ) : null}
+          {!snapshot.gameOver && snapshot.paused && onResume ? (
+            <button type="button" className="overlay-btn" onClick={onResume}>
+              Resume
+            </button>
+          ) : null}
         </div>
       )}
     </div>

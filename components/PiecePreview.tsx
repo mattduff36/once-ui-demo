@@ -6,13 +6,14 @@ import type { PieceType, RotationState } from "@/lib/game/types";
 
 interface PiecePreviewProps {
   piece: PieceType | null;
-  label: string;
+  label?: string;
   dimmed?: boolean;
+  variant?: "panel" | "mini";
 }
 
 const EMPTY_CELLS = Array.from({ length: PREVIEW_BOX_SIZE * PREVIEW_BOX_SIZE }, (_, index) => index);
 
-export function PiecePreview({ piece, label, dimmed = false }: PiecePreviewProps) {
+export function PiecePreview({ piece, label, dimmed = false, variant = "panel" }: PiecePreviewProps) {
   const activeCells = new Set<number>();
 
   if (piece) {
@@ -22,10 +23,15 @@ export function PiecePreview({ piece, label, dimmed = false }: PiecePreviewProps
     }
   }
 
+  const classes = ["piece-preview"];
+  if (variant === "panel") classes.push("panel");
+  if (variant === "mini") classes.push("mini");
+  if (dimmed) classes.push("dimmed");
+
   return (
-    <div className={`panel piece-preview ${dimmed ? "dimmed" : ""}`}>
-      <div className="panel-title">{label}</div>
-      <div className="preview-grid" aria-label={`${label} piece preview`}>
+    <div className={classes.join(" ")}>
+      {label ? <div className="panel-title">{label}</div> : null}
+      <div className="preview-grid" aria-label={label ? `${label} piece preview` : "piece preview"}>
         {EMPTY_CELLS.map((cell) => {
           const filled = activeCells.has(cell) && piece;
           return (
@@ -36,7 +42,7 @@ export function PiecePreview({ piece, label, dimmed = false }: PiecePreviewProps
                 filled
                   ? {
                       background: pieceToColor(piece),
-                      boxShadow: `0 0 8px ${pieceToColor(piece)}66`
+                      boxShadow: `0 0 6px ${pieceToColor(piece)}66`
                     }
                   : undefined
               }

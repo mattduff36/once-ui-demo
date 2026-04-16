@@ -1,5 +1,7 @@
 "use client";
 
+import type { MouseEvent, TouchEvent } from "react";
+
 type TouchControlsProps = {
   onLeftDown: () => void;
   onLeftUp: () => void;
@@ -14,47 +16,34 @@ type TouchControlsProps = {
   onPause: () => void;
 };
 
-interface ControlButtonProps {
-  label: string;
-  onPress: () => void;
-  onRelease?: () => void;
-  variant?: "primary" | "secondary" | "danger";
-}
-
-function ControlButton({ label, onPress, onRelease, variant = "primary" }: ControlButtonProps) {
-  return (
-    <button
-      type="button"
-      className={`touch-btn ${variant}`}
-      onTouchStart={(event) => {
-        event.preventDefault();
-        onPress();
-      }}
-      onTouchEnd={(event) => {
-        event.preventDefault();
-        onRelease?.();
-      }}
-      onTouchCancel={(event) => {
-        event.preventDefault();
-        onRelease?.();
-      }}
-      onMouseDown={(event) => {
-        event.preventDefault();
-        onPress();
-      }}
-      onMouseUp={(event) => {
-        event.preventDefault();
-        onRelease?.();
-      }}
-      onMouseLeave={(event) => {
-        event.preventDefault();
-        onRelease?.();
-      }}
-      onContextMenu={(event) => event.preventDefault()}
-    >
-      {label}
-    </button>
-  );
+function pressHandlers(onPress: () => void, onRelease?: () => void) {
+  return {
+    onTouchStart: (event: TouchEvent) => {
+      event.preventDefault();
+      onPress();
+    },
+    onTouchEnd: (event: TouchEvent) => {
+      event.preventDefault();
+      onRelease?.();
+    },
+    onTouchCancel: (event: TouchEvent) => {
+      event.preventDefault();
+      onRelease?.();
+    },
+    onMouseDown: (event: MouseEvent) => {
+      event.preventDefault();
+      onPress();
+    },
+    onMouseUp: (event: MouseEvent) => {
+      event.preventDefault();
+      onRelease?.();
+    },
+    onMouseLeave: (event: MouseEvent) => {
+      event.preventDefault();
+      onRelease?.();
+    },
+    onContextMenu: (event: MouseEvent) => event.preventDefault()
+  };
 }
 
 export function TouchControls({
@@ -71,16 +60,75 @@ export function TouchControls({
   onPause
 }: TouchControlsProps) {
   return (
-    <section className="touch-controls" aria-label="Touch controls">
-      <div className="controls-grid">
-        <ControlButton label="Left" onPress={onLeftDown} onRelease={onLeftUp} />
-        <ControlButton label="Right" onPress={onRightDown} onRelease={onRightUp} />
-        <ControlButton label="Soft" onPress={onSoftDropDown} onRelease={onSoftDropUp} />
-        <ControlButton label="Drop" onPress={onHardDrop} variant="secondary" />
-        <ControlButton label="↻" onPress={onRotateCw} />
-        <ControlButton label="↺" onPress={onRotateCcw} />
-        <ControlButton label="Hold" onPress={onHold} />
-        <ControlButton label="Pause" onPress={onPause} variant="danger" />
+    <section className="gb-controls" aria-label="Touch controls">
+      {/* D-pad: Left/Right move, Up hard-drops, Down soft-drops (authentic GB movement) */}
+      <div className="dpad" aria-label="Direction pad">
+        <span className="dpad-cross" aria-hidden="true" />
+        <button
+          type="button"
+          className="dpad-btn dpad-up"
+          aria-label="Hard drop"
+          {...pressHandlers(onHardDrop)}
+        >
+          <span className="arrow">▲</span>
+        </button>
+        <button
+          type="button"
+          className="dpad-btn dpad-left"
+          aria-label="Move left"
+          {...pressHandlers(onLeftDown, onLeftUp)}
+        >
+          <span className="arrow">◀</span>
+        </button>
+        <button
+          type="button"
+          className="dpad-btn dpad-right"
+          aria-label="Move right"
+          {...pressHandlers(onRightDown, onRightUp)}
+        >
+          <span className="arrow">▶</span>
+        </button>
+        <button
+          type="button"
+          className="dpad-btn dpad-down"
+          aria-label="Soft drop"
+          {...pressHandlers(onSoftDropDown, onSoftDropUp)}
+        >
+          <span className="arrow">▼</span>
+        </button>
+        <span className="dpad-hub" aria-hidden="true" />
+      </div>
+
+      {/* Select = Hold, Start = Pause (Start is authentic GB pause) */}
+      <div className="menu-pills" aria-label="Menu buttons">
+        <button type="button" className="pill-btn" {...pressHandlers(onHold)}>
+          <span className="pill-label">Select</span>
+          <span className="pill-sub">Hold</span>
+        </button>
+        <button type="button" className="pill-btn" {...pressHandlers(onPause)}>
+          <span className="pill-label">Start</span>
+          <span className="pill-sub">Pause</span>
+        </button>
+      </div>
+
+      {/* A = rotate clockwise, B = rotate counter-clockwise (authentic GB Tetris) */}
+      <div className="ab-cluster" aria-label="Action buttons">
+        <button
+          type="button"
+          className="round-btn btn-b"
+          aria-label="Rotate counter-clockwise"
+          {...pressHandlers(onRotateCcw)}
+        >
+          B
+        </button>
+        <button
+          type="button"
+          className="round-btn btn-a"
+          aria-label="Rotate clockwise"
+          {...pressHandlers(onRotateCw)}
+        >
+          A
+        </button>
       </div>
     </section>
   );
