@@ -1,86 +1,158 @@
-# Once UI + Tailwind CSS Starter Kit
+# Block Stack
 
-A design system for indie builders, startups, and freelancers. Once UI combines the simplicity of low-code with the power of code: write 70% less code compared to shadcn + Tailwind. Includes 100+ advanced components. **`(P.S. Once UI is enough, but hey, we added shadcn support for the overachievers!)`**
-
-Check the demo [here (will improve later)](https://once-ui-tailwind-starter.vercel.app).
-
-![Once UI](public/images/og/home.png)
+Mobile-first falling-block puzzle game built with **Next.js 15 App Router**, **TypeScript**, and **React 19**.  
+It is designed to play smoothly on iPhone Safari (portrait-first) and deploy directly to Vercel.
 
 ## Features
 
-A lightweight starter template with the [Once UI Core](https://github.com/once-ui-system/core) package and our recommended setup to move fast and break limits without neglecting quality.
+- 10x20 visible playfield with hidden spawn rows
+- 7 tetrominoes (I, O, T, S, Z, J, L)
+- 7-bag randomization
+- SRS-style rotation + wall kicks (including I-piece kick table)
+- Ghost piece
+- Hold piece (once per active piece)
+- Next queue (5 previews)
+- Soft drop / hard drop
+- Lock delay + lock reset cap
+- Line clears (single/double/triple/quad)
+- Combo + back-to-back
+- Practical T-spin detection
+- Level progression + gravity speed-up
+- Pause, restart, and game-over handling
+- High score persistence (`localStorage`)
+- Sound toggle persistence (`localStorage`)
+- Touch controls optimized for iPhone
+- Keyboard controls for desktop
+- PWA manifest + standalone-friendly metadata
 
-* **Customization**: Manage design config in a single file.
-* **Components**: Access advanced components with simple APIs.
-* **Data-viz**: Add responsive charts with a few lines of code.
-* **SEO**: Use our SEO components to simplify meta and schema setup.
-* **PRO**: Launch ready-made apps with minimal coding with Once UI Pro.
-* **Tailwind CSS**: Enjoy the benefits of Tailwind CSS integration out of the box.
-* **Shadcn Support**: For those who want even more components, we've got you covered.
+## Tech Stack
 
-[Get Once UI Pro](https://once-ui.com/pricing)
+- Next.js `15.5.15`
+- React `19.2.5`
+- TypeScript `6.0.2`
 
-## Documentation
+## Project Tree
 
-Learn how to build with Once UI at [docs.once-ui.com](https://docs.once-ui.com/once-ui/quick-start).
-
-## Quick start
-
-[Magic Portfolio](https://once-ui.com/products/magic-portfolio) (FREE): Portfolio starter used and loved by thousands of creatives. Simple, customizable, responsive.
-
-[Magic Docs](https://once-ui.com/products/magic-docs) (FREE): Documentation generator. Just add your MDX files and let Magic Docs handle the rest.
-
-[Magic Bio](https://once-ui.com/products/magic-bio) (FREE): Link-in-bio template that automatically fetches open-graph data. Just add your links and deploy.
-
-[Magic Convert](https://once-ui.com/products/magic-convert) (PRO): Conversion-optimized landing page and dashboard template.
-
-[Magic Agent](https://once-ui.com/products/magic-agent) (PRO): Deployment-ready AI agent built with the Vercel AI SDK.
-
-[Magic Store](https://once-ui.com/products/magic-store) (PRO): Ecommerce storefront that lets you sell digital and physical products.
-
-[Once UI Blocks](https://once-ui.com/blocks) (PRO): Copy-paste pre-designed blocks and deploy fully-functional sites with lightning speed.
-
-## Design
-
-The design counterpart of the Once UI system is available [here](https://once-ui.com/figma).
-
-## Get started
-
-Clone the starter template from GitHub:
-```bash
-git clone https://github.com/divyanshudhruv/once-ui-tailwind-starter
+```text
+.
+├── app
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components
+│   ├── Board.tsx
+│   ├── GameScreen.tsx
+│   ├── HudPanel.tsx
+│   ├── PiecePreview.tsx
+│   └── TouchControls.tsx
+├── hooks
+│   └── useGame.ts
+├── lib
+│   ├── audio
+│   │   └── sound.ts
+│   ├── game
+│   │   ├── constants.ts
+│   │   ├── engine.ts
+│   │   ├── random.ts
+│   │   ├── rotation.ts
+│   │   ├── scoring.ts
+│   │   └── types.ts
+│   └── storage
+│       └── preferences.ts
+├── public
+│   ├── icons
+│   │   ├── apple-touch-icon.svg
+│   │   ├── icon-192.svg
+│   │   └── icon-512.svg
+│   └── site.webmanifest
+├── .eslintrc.json
+├── .gitignore
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── tsconfig.json
+└── README.md
 ```
 
-## Creators
+## Controls
 
-Connect with us!
+### Keyboard
 
-**Lorant One**: [Site](https://lorant.one) / [Threads](https://www.threads.net/@lorant.one) / [LinkedIn](https://www.linkedin.com/in/lorant-one/)
+- `←` or `A`: move left
+- `→` or `D`: move right
+- `↓` or `S`: soft drop (hold)
+- `↑` or `X`: rotate clockwise
+- `Z`: rotate counter-clockwise
+- `Space`: hard drop
+- `C` or `Shift`: hold
+- `P` or `Escape`: pause
 
-**Zsofia Komaromi**: [Site](https://zsofia.pro) / [Threads](https://www.threads.net/@zsofia_kom) / [LinkedIn](https://www.linkedin.com/in/zsofiakomaromi/)
+### Touch (iPhone-friendly)
 
-**Divyanshu Dhruv `(contributor)`**: [Site](https://divyanshudhruv.is-a.dev) / [LinkedIn](https://www.linkedin.com/in/divyanshudhruv/)
+- Left, Right
+- Soft Drop, Hard Drop
+- Rotate CW, Rotate CCW
+- Hold, Pause
+- Restart button always available
+- Large tap targets and touch-action-safe interactions
 
-## Become a Oncer
+## Local Development
 
-![Design Engineers Club](https://docs.once-ui.com/images/docs/vibe-coding-dark.jpg)
+1. Install dependencies:
 
-Join the [Design Engineers Club](https://discord.com/invite/5EyAQ4eNdS) on Discord to connect with us and share your projects.
+   ```bash
+   npm install
+   ```
 
-Found a bug? Report it [here](https://github.com/once-ui-system/nextjs-starter/issues/new?labels=bug&template=bug_report.md). Got a feature request? Submit it [here](https://github.com/once-ui-system/nextjs-starter/issues/new?labels=feature%20request&template=feature_request.md).
+2. Start dev server:
 
-Please use the Once UI Core [GitHub repository](https://github.com/once-ui-system/core) for design system contributions.
+   ```bash
+   npm run dev
+   ```
 
-## Sponsors
+3. Open:
 
-Once UI is an indie project. [Sponsor us](https://github.com/sponsors/once-ui-system) and get featured on our site!
+   ```text
+   http://localhost:3000
+   ```
 
-## License
+## Production Build
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+```bash
+npm run build
+npm run start
+```
 
-## Deploy to Vercel 
+## Deploy to Vercel
 
-_For OnceUI Legacy_
+### Option A: Vercel CLI
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fnextjs-starter&project-name=nextjs-starter&repository-name=nextjs-starter&redirect-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fnextjs-starter&demo-title=Next.js%20Starter&demo-description=Showcase%20your%20designers%20or%20developer%20portfolio&demo-url=https%3A%2F%2Fdemo.nextjs-starter.com&demo-image=%2F%2Fraw.githubusercontent.com%2Fonce-ui-system%2Fnextjs-starter%2Fmain%2Fpublic%2Fimages%2Fog%2Fhome.jpg)
+```bash
+npm i -g vercel
+vercel
+```
+
+Then for production:
+
+```bash
+vercel --prod
+```
+
+### Option B: Git Integration
+
+1. Push this repository to GitHub.
+2. Import the repo in Vercel.
+3. Keep defaults:
+   - Framework: Next.js
+   - Build command: `npm run build`
+   - Output: Next.js default
+4. Deploy.
+
+No database, auth, or external APIs are required.
+
+## Notes
+
+- Sound defaults to **off** to avoid autoplay issues on mobile browsers.
+- High score and sound preference are stored locally in browser storage.
+- The UI intentionally avoids trademarked branding and copyrighted audio/visual assets.
