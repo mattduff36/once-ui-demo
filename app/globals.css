@@ -55,53 +55,6 @@ a {
   overflow: hidden;
 }
 
-/* ---------- Top bar (compact title + primary actions) ---------- */
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  flex-shrink: 0;
-  min-height: 32px;
-}
-
-.brand-title {
-  margin: 0;
-  font-size: clamp(0.88rem, 3vw, 1.25rem);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.top-actions {
-  display: flex;
-  gap: 4px;
-  flex-wrap: nowrap;
-}
-
-.action-btn {
-  appearance: none;
-  border: 1px solid var(--line-strong);
-  background: #141e3b;
-  color: var(--text-main);
-  border-radius: 999px;
-  padding: 5px 9px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  min-height: 28px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.action-btn.danger {
-  border-color: rgba(255, 87, 121, 0.55);
-  background: #321f3d;
-}
-
-.action-btn:active {
-  transform: translateY(1px);
-}
-
 /* ---------- Info strip: compact horizontal row of Hold + Stats + Next ---------- */
 
 .info-strip {
@@ -371,18 +324,29 @@ a {
 .board-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(8, 10, 18, 0.74);
-  display: grid;
-  place-content: center;
+  background: rgba(8, 10, 18, 0.78);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: 8px;
-  padding: 12px;
+  gap: 6px;
+  padding: 14px;
   backdrop-filter: blur(2px);
+}
+
+.overlay-brand {
+  margin: 0;
+  font-size: clamp(0.7rem, 3cqw, 0.95rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
 }
 
 .overlay-title {
   margin: 0;
-  font-size: clamp(1rem, 5cqw, 1.4rem);
+  font-size: clamp(1.1rem, 6cqw, 1.7rem);
   font-weight: 700;
 }
 
@@ -399,15 +363,38 @@ a {
   background: #3b2148;
   color: var(--text-main);
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 0.85rem;
+  padding: 8px 18px;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  justify-self: center;
+  min-height: 38px;
+}
+
+.overlay-btn.secondary {
+  margin-top: 0;
+  border: 1px solid var(--line-strong);
+  background: #141e3b;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  min-height: 32px;
+}
+
+.overlay-btn.secondary.danger {
+  border-color: rgba(255, 87, 121, 0.55);
+  background: #321f3d;
 }
 
 .overlay-btn:active {
   transform: translateY(1px);
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
 }
 
 /* ---------- Game Boy-style touch controls ---------- */
@@ -632,17 +619,6 @@ a {
   .app-shell {
     gap: 4px;
   }
-  .top-bar {
-    min-height: 28px;
-  }
-  .brand-title {
-    font-size: 0.85rem;
-  }
-  .action-btn {
-    padding: 4px 7px;
-    font-size: 0.66rem;
-    min-height: 26px;
-  }
   .gb-controls {
     padding: 6px 10px;
   }
@@ -697,17 +673,6 @@ a {
     padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
       max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     gap: 10px;
-  }
-  .top-bar {
-    min-height: 40px;
-  }
-  .brand-title {
-    font-size: 1.2rem;
-  }
-  .action-btn {
-    padding: 7px 12px;
-    font-size: 0.8rem;
-    min-height: 34px;
   }
   .info-strip {
     gap: 12px;
@@ -775,7 +740,6 @@ a {
     gap: 12px;
     align-items: center;
   }
-  .top-bar,
   .info-strip,
   .gb-controls {
     width: 100%;
@@ -793,9 +757,6 @@ a {
   }
   .next-inline > .piece-preview.mini {
     width: 84px;
-  }
-  .brand-title {
-    font-size: 1.4rem;
   }
   .panel {
     padding: 12px;

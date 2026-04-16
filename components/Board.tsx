@@ -8,6 +8,7 @@ interface BoardProps {
   snapshot: GameSnapshot;
   onRestart?: () => void;
   onResume?: () => void;
+  onToggleSound?: () => void;
 }
 
 const GHOST_ALPHA = "55";
@@ -57,7 +58,7 @@ const createRenderGrid = (snapshot: GameSnapshot): CellValue[][] => {
   return board;
 };
 
-export function Board({ snapshot, onRestart, onResume }: BoardProps) {
+export function Board({ snapshot, onRestart, onResume, onToggleSound }: BoardProps) {
   const renderGrid = createRenderGrid(snapshot);
   const clearingVisibleRows = new Set(
     snapshot.clearingLines
@@ -98,9 +99,12 @@ export function Board({ snapshot, onRestart, onResume }: BoardProps) {
       </div>
       {(snapshot.paused || snapshot.gameOver) && (
         <div className="board-overlay">
+          <p className="overlay-brand">Block Stack</p>
           <p className="overlay-title">{snapshot.gameOver ? "Game Over" : "Paused"}</p>
           <p className="overlay-subtitle">
-            {snapshot.gameOver ? "Tap play again to retry." : "Tap resume to continue."}
+            {snapshot.gameOver
+              ? `Final score ${snapshot.score.toLocaleString()}`
+              : "Use Start on the controls to resume."}
           </p>
           {snapshot.gameOver && onRestart ? (
             <button type="button" className="overlay-btn" onClick={onRestart}>
@@ -112,6 +116,23 @@ export function Board({ snapshot, onRestart, onResume }: BoardProps) {
               Resume
             </button>
           ) : null}
+          <div className="overlay-actions">
+            {onToggleSound ? (
+              <button
+                type="button"
+                className="overlay-btn secondary"
+                onClick={onToggleSound}
+                aria-label={snapshot.soundEnabled ? "Mute sound" : "Enable sound"}
+              >
+                {snapshot.soundEnabled ? "Sound: On" : "Sound: Off"}
+              </button>
+            ) : null}
+            {!snapshot.gameOver && onRestart ? (
+              <button type="button" className="overlay-btn secondary danger" onClick={onRestart}>
+                Restart
+              </button>
+            ) : null}
+          </div>
         </div>
       )}
     </div>

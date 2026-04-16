@@ -24,26 +24,6 @@ export function GameScreen() {
 
   return (
     <main className="app-shell">
-      <header className="top-bar">
-        <h1 className="brand-title">Block Stack</h1>
-        <div className="top-actions">
-          <button
-            type="button"
-            className="action-btn"
-            onClick={input.toggleSound}
-            aria-label={snapshot.soundEnabled ? "Mute sound" : "Enable sound"}
-          >
-            {snapshot.soundEnabled ? "Sound" : "Muted"}
-          </button>
-          <button type="button" className="action-btn" onClick={input.pauseToggle}>
-            {snapshot.paused ? "Resume" : "Pause"}
-          </button>
-          <button type="button" className="action-btn danger" onClick={input.restart}>
-            {snapshot.gameOver ? "Play Again" : "Restart"}
-          </button>
-        </div>
-      </header>
-
       <div className="info-strip" aria-label="Game status">
         <div className="hold-slot">
           <PiecePreview
@@ -72,6 +52,7 @@ export function GameScreen() {
           snapshot={snapshot}
           onRestart={input.restart}
           onResume={input.pauseToggle}
+          onToggleSound={input.toggleSound}
         />
       </div>
 
