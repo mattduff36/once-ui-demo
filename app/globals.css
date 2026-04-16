@@ -335,6 +335,39 @@ a {
   background-clip: padding-box;
 }
 
+/* Line-clear flash: fires on the cells of each cleared row before the engine
+   actually removes them. Duration matches CLEAR_ANIMATION_MS (220 ms). */
+@keyframes line-clear-flash {
+  0% {
+    filter: brightness(1);
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  25% {
+    filter: brightness(2.6) saturate(0.2);
+    transform: scaleY(1.04);
+    opacity: 1;
+  }
+  55% {
+    filter: brightness(2.6) saturate(0.2);
+    transform: scaleY(1.04);
+    opacity: 1;
+  }
+  100% {
+    filter: brightness(3) saturate(0);
+    transform: scaleY(0.1);
+    opacity: 0;
+  }
+}
+
+.cell.clearing {
+  animation: line-clear-flash 220ms ease-out forwards;
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.8);
+  z-index: 1;
+}
+
 .board-overlay {
   position: absolute;
   inset: 0;
@@ -375,32 +408,6 @@ a {
 
 .overlay-btn:active {
   transform: translateY(1px);
-}
-
-/* ---------- Status line (combo / back-to-back / clear text) ---------- */
-
-.status-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  min-height: 20px;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-}
-
-.status-line:empty {
-  display: none;
-}
-
-.status-pill {
-  font-size: 0.66rem;
-  border-radius: 999px;
-  border: 1px solid rgba(143, 220, 255, 0.35);
-  color: #9ddfff;
-  padding: 2px 8px;
-  background: rgba(66, 120, 160, 0.2);
-  line-height: 1.3;
 }
 
 /* ---------- Game Boy-style touch controls ---------- */
@@ -652,9 +659,6 @@ a {
   .stat-value {
     font-size: 0.72rem;
   }
-  .status-line {
-    min-height: 0;
-  }
   .info-strip {
     gap: 5px;
   }
@@ -773,7 +777,6 @@ a {
   }
   .top-bar,
   .info-strip,
-  .status-line,
   .gb-controls {
     width: 100%;
     max-width: 860px;

@@ -7,6 +7,7 @@ export const BOARD_HEIGHT = VISIBLE_BOARD_HEIGHT + HIDDEN_ROWS;
 export const PREVIEW_COUNT = 5;
 
 export const LOCK_DELAY_MS = 500;
+export const CLEAR_ANIMATION_MS = 220;
 export const MAX_LOCK_RESETS = 15;
 export const DAS_MS = 120;
 export const ARR_MS = 28;

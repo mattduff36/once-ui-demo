@@ -2,6 +2,7 @@ import {
   ARR_MS,
   BOARD_HEIGHT,
   BOARD_WIDTH,
+  CLEAR_ANIMATION_MS,
   DAS_MS,
   HIDDEN_ROWS,
   LINES_PER_LEVEL,
@@ -41,6 +42,7 @@ interface InternalState {
   gameOver: boolean;
   soundEnabled: boolean;
   lastClearText: string;
+  clearingLines: number[];
 }
 
 const createBoard = (): CellValue[][] =>
@@ -56,13 +58,23 @@ const getSpawnPiece = (type: PieceType): ActivePiece => {
   return { type, rotation: 0, x: spawn.x, y: spawn.y };
 };
 
-const clearLines = (board: CellValue[][]): { board: CellValue[][]; linesCleared: number } => {
-  const kept = board.filter((row) => row.some((cell) => cell === null));
-  const linesCleared = BOARD_HEIGHT - kept.length;
+const findFullRows = (board: CellValue[][]): number[] => {
+  const indices: number[] = [];
+  for (let y = 0; y < board.length; y += 1) {
+    if (board[y].every((cell) => cell !== null)) {
+      indices.push(y);
+    }
+  }
+  return indices;
+};
+
+const removeRows = (board: CellValue[][], rowIndices: number[]): CellValue[][] => {
+  const drop = new Set(rowIndices);
+  const kept = board.filter((_, index) => !drop.has(index));
   while (kept.length < BOARD_HEIGHT) {
     kept.unshift(Array<CellValue>(BOARD_WIDTH).fill(null));
   }
-  return { board: kept, linesCleared };
+  return kept;
 };
 
 export class GameEngine {
@@ -77,6 +89,7 @@ export class GameEngine {
   private softDrop = false;
   private lastMoveWasRotate = false;
   private pendingSoftDropCells = 0;
+  private clearingMs = 0;
 
   constructor(seed?: number) {
     this.randomizer = new BagRandomizer(seed);
@@ -96,12 +109,17 @@ export class GameEngine {
       paused: false,
       gameOver: false,
       soundEnabled: false,
-      lastClearText: ""
+      lastClearText: "",
+      clearingLines: []
     };
     this.fillQueue();
     if (!canPlace(this.state.board, this.state.active)) {
       this.state.gameOver = true;
     }
+  }
+
+  private isBusy(): boolean {
+    return this.state.paused || this.state.gameOver || this.state.clearingLines.length > 0;
   }
 
   private fillQueue(): void {
@@ -183,9 +201,11 @@ export class GameEngine {
       }
     }
 
+    const clearingLines = findFullRows(board);
+    const linesCleared = clearingLines.length;
+    const previewCleared = removeRows(board, clearingLines);
     const isTSpin = this.state.active.type === "T" && this.lastMoveWasRotate && cornerCount >= 3;
-    const { board: clearedBoard, linesCleared } = clearLines(board);
-    const perfectClear = linesCleared > 0 && isPerfectClear(clearedBoard);
+    const perfectClear = linesCleared > 0 && isPerfectClear(previewCleared);
     const difficult = (isTSpin && linesCleared > 0) || linesCleared === 4;
     const usedBackToBack = this.state.backToBack && difficult;
     const nextCombo = linesCleared > 0 ? this.state.combo + 1 : -1;
@@ -201,7 +221,9 @@ export class GameEngine {
       hardDropCells
     });
 
-    this.state.board = clearedBoard;
+    // Keep the filled rows on the board for the clearing animation; the rows
+    // are actually removed when `finishClear()` fires in the tick loop.
+    this.state.board = board;
     this.state.score += scoreDelta;
     this.state.highScore = Math.max(this.state.highScore, this.state.score);
     this.state.lines += linesCleared;
@@ -211,7 +233,13 @@ export class GameEngine {
       this.state.backToBack = difficult;
     }
     this.state.lastClearText = getClearText(linesCleared, isTSpin, usedBackToBack, nextCombo);
-    this.spawnFromQueue();
+
+    if (linesCleared > 0) {
+      this.state.clearingLines = clearingLines;
+      this.clearingMs = 0;
+    } else {
+      this.spawnFromQueue();
+    }
 
     return {
       linesCleared,
@@ -223,8 +251,28 @@ export class GameEngine {
     };
   }
 
+  private finishClear(): void {
+    if (this.state.clearingLines.length === 0) {
+      return;
+    }
+    this.state.board = removeRows(this.state.board, this.state.clearingLines);
+    this.state.clearingLines = [];
+    this.clearingMs = 0;
+    this.spawnFromQueue();
+  }
+
   tick(deltaMs: number): TickResult {
     if (this.state.paused || this.state.gameOver) {
+      return { changed: false, lockResult: null };
+    }
+
+    // Hold gameplay while the cleared rows are animating out.
+    if (this.state.clearingLines.length > 0) {
+      this.clearingMs += deltaMs;
+      if (this.clearingMs >= CLEAR_ANIMATION_MS) {
+        this.finishClear();
+        return { changed: true, lockResult: null };
+      }
       return { changed: false, lockResult: null };
     }
 
@@ -267,21 +315,21 @@ export class GameEngine {
   }
 
   moveLeft(): boolean {
-    if (this.state.paused || this.state.gameOver) {
+    if (this.isBusy()) {
       return false;
     }
     return this.move(-1);
   }
 
   moveRight(): boolean {
-    if (this.state.paused || this.state.gameOver) {
+    if (this.isBusy()) {
       return false;
     }
     return this.move(1);
   }
 
   startHorizontalRepeat(direction: MoveDirection): void {
-    if (this.state.paused || this.state.gameOver) {
+    if (this.isBusy()) {
       return;
     }
     this.moveDirection = direction;
@@ -299,7 +347,7 @@ export class GameEngine {
   }
 
   rotateClockwise(): boolean {
-    if (this.state.paused || this.state.gameOver) {
+    if (this.isBusy()) {
       return false;
     }
     const rotated = tryRotate(this.state.board, this.state.active, "cw");
@@ -313,7 +361,7 @@ export class GameEngine {
   }
 
   rotateCounterClockwise(): boolean {
-    if (this.state.paused || this.state.gameOver) {
+    if (this.isBusy()) {
       return false;
     }
     const rotated = tryRotate(this.state.board, this.state.active, "ccw");
@@ -327,7 +375,7 @@ export class GameEngine {
   }
 
   softDropStart(): void {
-    if (!this.state.paused && !this.state.gameOver) {
+    if (!this.isBusy()) {
       this.softDrop = true;
     }
   }
@@ -337,7 +385,7 @@ export class GameEngine {
   }
 
   hardDrop(): LockResult | null {
-    if (this.state.paused || this.state.gameOver) {
+    if (this.isBusy()) {
       return null;
     }
     let dropped = 0;
@@ -348,7 +396,7 @@ export class GameEngine {
   }
 
   hold(): boolean {
-    if (this.state.paused || this.state.gameOver || !this.state.canHold) {
+    if (this.isBusy() || !this.state.canHold) {
       return false;
     }
 
@@ -397,7 +445,8 @@ export class GameEngine {
       paused: false,
       gameOver: false,
       soundEnabled: sound,
-      lastClearText: ""
+      lastClearText: "",
+      clearingLines: []
     };
     this.fillQueue();
     this.gravityMs = 0;
@@ -409,6 +458,7 @@ export class GameEngine {
     this.softDrop = false;
     this.lastMoveWasRotate = false;
     this.pendingSoftDropCells = 0;
+    this.clearingMs = 0;
     if (!canPlace(this.state.board, this.state.active)) {
       this.state.gameOver = true;
     }
@@ -441,7 +491,8 @@ export class GameEngine {
       paused: this.state.paused,
       gameOver: this.state.gameOver,
       soundEnabled: this.state.soundEnabled,
-      lastClearText: this.state.lastClearText
+      lastClearText: this.state.lastClearText,
+      clearingLines: [...this.state.clearingLines]
     };
   }
 }

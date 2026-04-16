@@ -44,7 +44,8 @@ const makeInitialSnapshot = (): GameSnapshot => ({
   paused: false,
   gameOver: false,
   soundEnabled: false,
-  lastClearText: ""
+  lastClearText: "",
+  clearingLines: []
 });
 
 export const useGame = (): GameController => {

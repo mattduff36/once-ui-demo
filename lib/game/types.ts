@@ -43,6 +43,7 @@ export interface GameSnapshot {
   gameOver: boolean;
   soundEnabled: boolean;
   lastClearText: string;
+  clearingLines: number[];
 }
 
 export type GameEventType = "rotate" | "line-clear" | "hard-drop" | "game-over";

@@ -75,12 +75,6 @@ export function GameScreen() {
         />
       </div>
 
-      <div className="status-line" aria-live="polite">
-        {snapshot.lastClearText ? <span className="status-pill">{snapshot.lastClearText}</span> : null}
-        {snapshot.combo > 0 ? <span className="status-pill">Combo x{snapshot.combo + 1}</span> : null}
-        {snapshot.backToBack ? <span className="status-pill">Back-to-Back</span> : null}
-      </div>
-
       <TouchControls
         onLeftDown={input.leftDown}
         onLeftUp={input.leftUp}
