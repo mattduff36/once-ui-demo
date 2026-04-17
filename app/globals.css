@@ -64,11 +64,12 @@ a {
   min-width: 0;
 }
 
-/* ---------- Play row: left rail (Hold + Next) | centred board | mirror column ---------- */
+/* ---------- Play row: left Next rail | centred board | right Hold rail ---------- */
 
 .play-row {
   --rail-w: clamp(48px, 13vw, 96px);
   --rail-gap: clamp(4px, 1.4vw, 10px);
+  --preview-box-size: min(var(--rail-w), clamp(44px, 9vh, 78px));
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
@@ -80,10 +81,7 @@ a {
   justify-items: stretch;
 }
 
-/* The third column is intentionally empty; it reserves mirror width so the
-   board-wrap in column 2 is centred relative to the overall app-shell. */
-
-.side-rail {
+.rail-column {
   display: flex;
   flex-direction: column;
   gap: clamp(2px, 0.6vh, 5px);
@@ -91,6 +89,10 @@ a {
   min-width: 0;
   overflow: hidden;
   align-items: stretch;
+}
+
+.hold-column {
+  align-self: start;
 }
 
 .rail-label {
@@ -111,35 +113,26 @@ a {
   justify-content: center;
 }
 
-.rail-hold > .piece-preview.mini {
-  width: 100%;
-}
-
 .rail-next-list {
-  flex: 1 1 0;
-  min-height: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: clamp(2px, 0.6vh, 5px);
-  align-items: stretch;
+  align-items: center;
 }
 
+.rail-hold > .piece-preview.mini,
 .rail-next-list > .piece-preview.mini {
-  flex: 1 1 0;
-  min-height: 0;
-  width: 100%;
+  flex: 0 0 auto;
+  width: var(--preview-box-size);
   padding: clamp(2px, 0.6vw, 4px);
 }
 
-/* In the vertical rail the preview-grid must obey BOTH the rail width and
-   the flex height, so we let it size to 100% of the smaller dimension while
-   keeping the piece square and centred. */
-.side-rail .piece-preview.mini .preview-grid {
-  width: auto;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  aspect-ratio: 1 / 1;
+/* Keep every mini preview at a fixed 3x4 footprint and avoid stretching. */
+.rail-column .piece-preview.mini .preview-grid {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
   margin-inline: auto;
 }
 
@@ -189,16 +182,23 @@ a {
 
 .preview-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
   gap: 1px;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 4;
   width: 100%;
 }
 
 .preview-cell {
-  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 2px;
-  background: #0d1428;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.preview-cell.filled {
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Mini variant used inside the next queue (no inner panel chrome) */

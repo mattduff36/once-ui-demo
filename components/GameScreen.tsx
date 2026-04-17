@@ -35,15 +35,7 @@ export function GameScreen() {
       </div>
 
       <div className="play-row">
-        <aside className="side-rail" aria-label="Hold and next pieces">
-          <p className="rail-label">Hold</p>
-          <div className="rail-hold">
-            <PiecePreview
-              piece={snapshot.holdPiece}
-              dimmed={!snapshot.canHold}
-              variant="mini"
-            />
-          </div>
+        <aside className="rail-column next-column" aria-label="Next pieces">
           <p className="rail-label">Next</p>
           <div className="rail-next-list">
             {next.map((piece, index) => (
@@ -60,6 +52,17 @@ export function GameScreen() {
             onToggleSound={input.toggleSound}
           />
         </div>
+
+        <aside className="rail-column hold-column" aria-label="Hold piece">
+          <p className="rail-label">Hold</p>
+          <div className="rail-hold">
+            <PiecePreview
+              piece={snapshot.holdPiece}
+              dimmed={!snapshot.canHold}
+              variant="mini"
+            />
+          </div>
+        </aside>
       </div>
 
       <TouchControls
